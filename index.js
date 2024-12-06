@@ -3,16 +3,24 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
 
-// Set up the proxy
-app.use('/redirect10', createProxyMiddleware({
-  target: 'https://extramathequations.web.app/',  // Replace with your target server
-  changeOrigin: true,                             // Ensures the request is forwarded correctly
+// Set up the proxy to the correct URL
+app.use('/greenbean', createProxyMiddleware({
+  target: 'https://mathpunch.browbar.ar',  // Correct proxy URL
+  changeOrigin: true,                      // Ensures correct forwarding of requests
   pathRewrite: {
-    '^/redirect10': '',                          // Remove "/redirect10" from the path
+    '^/greenbean': '',                    // Remove "/greenbean" from the path before forwarding
+  },
+  onProxyReq: (proxyReq, req, res) => {
+    // Log the request for debugging
+    console.log(`Proxying request to: ${req.url}`);
+  },
+  onError: (err, req, res) => {
+    console.error('Proxy error:', err);
+    res.status(500).send('Proxy error');
   },
 }));
 
-// Start the server
+// Serve the app
 app.listen(3000, () => {
   console.log('Proxy server is running on http://localhost:3000');
 });
